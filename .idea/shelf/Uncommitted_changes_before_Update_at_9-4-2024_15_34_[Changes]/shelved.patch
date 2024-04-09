@@ -1,0 +1,146 @@
+Index: src/gui/buttons/FastWithdrawButton.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui.buttons;\r\n\r\nimport gui.BaseButton;\r\nimport gui.GUI;\r\nimport gui.pages.ChoicePage;\r\nimport gui.pages.FastWithdrawPage;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\n\r\npublic class FastWithdrawButton extends BaseButton {\r\n    public FastWithdrawButton() {\r\n        super();\r\n        button.setLocation(LEFT,Y_POS(2));\r\n        button.setText(\"Snel opnemen\");\r\n        button.addActionListener(e -> GUI.gotoPage(FastWithdrawPage.KEY));\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/gui/buttons/FastWithdrawButton.java b/src/gui/buttons/FastWithdrawButton.java
+--- a/src/gui/buttons/FastWithdrawButton.java	
++++ b/src/gui/buttons/FastWithdrawButton.java	
+@@ -13,6 +13,6 @@
+         super();
+         button.setLocation(LEFT,Y_POS(2));
+         button.setText("Snel opnemen");
+-        button.addActionListener(e -> GUI.gotoPage(FastWithdrawPage.KEY));
++        button.addActionListener(e -> GUI.gotoPage(FastWithdrawPage.KEY)); // Using FastWithdrawPage.KEY
+     }
+ }
+Index: src/gui/GUI.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui;\r\n\r\nimport gui.pages.BalancePage;\r\nimport gui.pages.ChoicePage;\r\nimport gui.pages.FastWithdrawPage;\r\nimport gui.pages.HomePage;\r\nimport serial.ArduinoSerial;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.util.HashMap;\r\n\r\npublic abstract class GUI {\r\n    private static JFrame frame;\r\n    protected static ImageIcon bankImg;\r\n    private static final HashMap<String, BasePage> pages = new HashMap<>();\r\n    protected static int width;\r\n    protected static int height;\r\n    private static Timer timeOut = new Timer(120000, e -> timeoutAction());\r\n    private static ArduinoSerial arduino = new ArduinoSerial();\r\n\r\n    public static void makeGUI() {\r\n        Toolkit tk = Toolkit.getDefaultToolkit();\r\n        width = tk.getScreenSize().width;\r\n        height = tk.getScreenSize().height;\r\n\r\n        try {\r\n            bankImg = new ImageIcon(\"DABANKCOLLOR.png\");\r\n        }catch (Exception e) {\r\n            System.out.println(\"Image not found\");\r\n        }\r\n\r\n        pages.put(HomePage.KEY,new HomePage());\r\n        pages.put(ChoicePage.KEY,new ChoicePage());\r\n        pages.put(BalancePage.KEY,new BalancePage());\r\n        pages.put(FastWithdrawPage.KEY,new FastWithdrawPage());\r\n\r\n        frame = new JFrame(\"TestingInProgress\");\r\n        frame.setIconImage(bankImg.getImage());\r\n        for (BasePage page : pages.values()) {\r\n            frame.add(page.getPage());\r\n            page.setVisible(false);\r\n        }\r\n        pages.get(HomePage.KEY).setVisible(true);\r\n        frame.getContentPane().setBackground(new Color(205,14,14));\r\n        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);\r\n        frame.setUndecorated(true);\r\n        frame.setResizable(false);\r\n        frame.setLayout(null);\r\n        frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);\r\n        frame.setLocationRelativeTo(null);\r\n        frame.setVisible(true);\r\n        System.out.println(pages.size());\r\n        timeOut.setRepeats(false);\r\n    }\r\n    private static void timeoutAction() {\r\n        gotoPage(HomePage.KEY);\r\n    }\r\n    public static void gotoPage(String key) {\r\n        if (key.equals(HomePage.KEY)) {\r\n            timeOut.stop();\r\n        }\r\n        else {\r\n            timeOut.restart();\r\n        }\r\n        for (BasePage page : pages.values()) {\r\n            page.setVisible(false);\r\n        }\r\n        pages.get(key).setVisible(true);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/gui/GUI.java b/src/gui/GUI.java
+--- a/src/gui/GUI.java	
++++ b/src/gui/GUI.java	
+@@ -1,9 +1,6 @@
+ package gui;
+ 
+-import gui.pages.BalancePage;
+-import gui.pages.ChoicePage;
+-import gui.pages.FastWithdrawPage;
+-import gui.pages.HomePage;
++import gui.pages.*;
+ import serial.ArduinoSerial;
+ 
+ import javax.swing.*;
+@@ -14,8 +11,8 @@
+     private static JFrame frame;
+     protected static ImageIcon bankImg;
+     private static final HashMap<String, BasePage> pages = new HashMap<>();
+-    protected static int width;
+-    protected static int height;
++    public static int width;
++    public static int height;
+     private static Timer timeOut = new Timer(120000, e -> timeoutAction());
+     private static ArduinoSerial arduino = new ArduinoSerial();
+ 
+@@ -34,6 +31,9 @@
+         pages.put(ChoicePage.KEY,new ChoicePage());
+         pages.put(BalancePage.KEY,new BalancePage());
+         pages.put(FastWithdrawPage.KEY,new FastWithdrawPage());
++        pages.put(WithdrawPage.KEY, new WithdrawPage());
++        pages.put(SaldoCheckPage.KEY, new SaldoCheckPage());
++        pages.put(Eindscherm.KEY, new Eindscherm());
+ 
+         frame = new JFrame("TestingInProgress");
+         frame.setIconImage(bankImg.getImage());
+Index: src/gui/pages/HomePage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui.pages;\r\n\r\nimport gui.*;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\n\r\npublic class HomePage extends BasePage{\r\n    public static final String KEY = \"HOMEPAGE\";\r\n    public HomePage() {\r\n        super();\r\n\r\n        JPanel display = new JPanel();\r\n        display.setBounds(0,(GUI_HEIGHT-100), GUI_WIDTH,50);\r\n        display.setOpaque(false);\r\n        JLabel text = new JLabel(\"Klik waar dan ook om verder te gaan\");\r\n        text.setFont(new Font(Font.SANS_SERIF,Font.BOLD,30));\r\n        display.add(text);\r\n        text.setForeground(Color.BLACK);\r\n        page.add(display);\r\n\r\n        JButton start = new JButton();\r\n        start.setSize(GUI_WIDTH, GUI_HEIGHT);\r\n        start.setOpaque(false);\r\n        start.setFocusable(false);\r\n        start.setContentAreaFilled(false);\r\n        start.setBorderPainted(false);\r\n        start.addActionListener(e -> GUI.gotoPage(ChoicePage.KEY));\r\n        page.add(start);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/gui/pages/HomePage.java b/src/gui/pages/HomePage.java
+--- a/src/gui/pages/HomePage.java	
++++ b/src/gui/pages/HomePage.java	
+@@ -1,3 +1,5 @@
++// blijf op deze pagina, zodra de rfid iets scanned, ga naar voer pincode in scherm
++
+ package gui.pages;
+ 
+ import gui.*;
+Index: src/gui/pages/FastWithdrawPage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui.pages;\r\n\r\nimport gui.BasePage;\r\nimport gui.buttons.BackButton;\r\nimport gui.buttons.MainPageButton;\r\nimport gui.buttons.StopTransactionButton;\r\nimport gui.popups.TransactionDialog;\r\n\r\npublic class FastWithdrawPage extends BasePage {\r\n    public static final String KEY = \"FASTWITHDRAWPAGE\";\r\n    private final TransactionDialog transactionDialog;\r\n    public FastWithdrawPage() {\r\n        super();\r\n\r\n        transactionDialog = new TransactionDialog();\r\n\r\n        page.add(new StopTransactionButton().getButton());\r\n        page.add(new BackButton(ChoicePage.KEY).getButton());\r\n        page.add(new MainPageButton().getButton());\r\n        page.add(transactionDialog.getDisplayText());\r\n    }\r\n\r\n    @Override\r\n    public void setVisible(boolean visible) {\r\n        page.setVisible(visible);\r\n        if (visible) {\r\n            transactionDialog.startTransaction();\r\n        }\r\n        else {\r\n            transactionDialog.stopTransaction();\r\n        }\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/gui/pages/FastWithdrawPage.java b/src/gui/pages/FastWithdrawPage.java
+--- a/src/gui/pages/FastWithdrawPage.java	
++++ b/src/gui/pages/FastWithdrawPage.java	
+@@ -3,6 +3,7 @@
+ import gui.BasePage;
+ import gui.buttons.BackButton;
+ import gui.buttons.MainPageButton;
++import gui.buttons.Snel50Button;
+ import gui.buttons.StopTransactionButton;
+ import gui.popups.TransactionDialog;
+ 
+@@ -17,17 +18,9 @@
+         page.add(new StopTransactionButton().getButton());
+         page.add(new BackButton(ChoicePage.KEY).getButton());
+         page.add(new MainPageButton().getButton());
+-        page.add(transactionDialog.getDisplayText());
++
++        page.add(new Snel50Button().getButton());
++
+     }
+ 
+-    @Override
+-    public void setVisible(boolean visible) {
+-        page.setVisible(visible);
+-        if (visible) {
+-            transactionDialog.startTransaction();
+-        }
+-        else {
+-            transactionDialog.stopTransaction();
+-        }
+-    }
+ }
+Index: src/gui/pages/ChoicePage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui.pages;\r\n\r\nimport gui.*;\r\nimport gui.buttons.BackButton;\r\nimport gui.buttons.FastWithdrawButton;\r\nimport gui.buttons.StopTransactionButton;\r\n\r\nimport javax.swing.*;\r\n\r\npublic class ChoicePage extends BasePage{\r\n    public static final String KEY = \"CHOICEPAGE\";\r\n    public ChoicePage() {\r\n        page.setSize(GUI_WIDTH,GUI_HEIGHT);\r\n\r\n        page.add(new StopTransactionButton().getButton());\r\n        page.add(new FastWithdrawButton().getButton());\r\n        page.add(new BackButton(HomePage.KEY).getButton());\r\n\r\n        JButton takeUp = createMenuButton(BaseButton.LEFT,BaseButton.Y_POS(3));\r\n        takeUp.setText(\"Biljetten kiezen\");\r\n        takeUp.addActionListener(e -> System.out.println(\"Biljetten kiezen clicked\")); // placeholder, TODO\r\n        page.add(takeUp);\r\n\r\n        JButton showBankingInfo = createMenuButton(BaseButton.RIGHT,BaseButton.Y_POS(2));\r\n        showBankingInfo.setText(\"Saldo Checken\");\r\n        showBankingInfo.addActionListener(e -> GUI.gotoPage(BalancePage.KEY)); // placeholder, TODO\r\n        page.add(showBankingInfo);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/gui/pages/ChoicePage.java b/src/gui/pages/ChoicePage.java
+--- a/src/gui/pages/ChoicePage.java	
++++ b/src/gui/pages/ChoicePage.java	
+@@ -1,9 +1,7 @@
+ package gui.pages;
+ 
+ import gui.*;
+-import gui.buttons.BackButton;
+-import gui.buttons.FastWithdrawButton;
+-import gui.buttons.StopTransactionButton;
++import gui.buttons.*;
+ 
+ import javax.swing.*;
+ 
+@@ -14,16 +12,10 @@
+ 
+         page.add(new StopTransactionButton().getButton());
+         page.add(new FastWithdrawButton().getButton());
++        page.add(new WithdrawButton().getButton());
++        page.add(new SaldoCheckButton().getButton());
++
+         page.add(new BackButton(HomePage.KEY).getButton());
+ 
+-        JButton takeUp = createMenuButton(BaseButton.LEFT,BaseButton.Y_POS(3));
+-        takeUp.setText("Biljetten kiezen");
+-        takeUp.addActionListener(e -> System.out.println("Biljetten kiezen clicked")); // placeholder, TODO
+-        page.add(takeUp);
+-
+-        JButton showBankingInfo = createMenuButton(BaseButton.RIGHT,BaseButton.Y_POS(2));
+-        showBankingInfo.setText("Saldo Checken");
+-        showBankingInfo.addActionListener(e -> GUI.gotoPage(BalancePage.KEY)); // placeholder, TODO
+-        page.add(showBankingInfo);
+     }
+ }

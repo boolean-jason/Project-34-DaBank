@@ -1,0 +1,222 @@
+Index: src/gui/pages/WithdrawPage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/pages/WithdrawPage.java b/src/gui/pages/WithdrawPage.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/pages/WithdrawPage.java	
+@@ -0,0 +1,35 @@
++package gui.pages;
++
++import gui.BasePage;
++import gui.buttons.BackButton;
++import gui.buttons.MainPageButton;
++import gui.buttons.StopTransactionButton;
++import gui.popups.TransactionDialog;
++
++public class WithdrawPage extends BasePage {
++    public static final String KEY = "WITHDRAWPAGE"; // Correct key for WithdrawPage
++    private final TransactionDialog transactionDialog;
++    public WithdrawPage() {
++        super();
++
++        transactionDialog = new TransactionDialog();
++
++        page.add(new StopTransactionButton().getButton());
++        page.add(new BackButton(ChoicePage.KEY).getButton());
++        page.add(new MainPageButton().getButton());
++        page.add(transactionDialog.getDisplayText());
++
++    }
++
++    @Override
++    public void setVisible(boolean visible) {
++        page.setVisible(visible);
++        if (visible) {
++            transactionDialog.startTransaction();
++        }
++        else {
++            transactionDialog.stopTransaction();
++        }
++    }
++
++}
+Index: src/gui/buttons/WithdrawButton.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/buttons/WithdrawButton.java b/src/gui/buttons/WithdrawButton.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/buttons/WithdrawButton.java	
+@@ -0,0 +1,18 @@
++package gui.buttons;
++
++import gui.BaseButton;
++import gui.GUI;
++import gui.pages.ChoicePage;
++import gui.pages.WithdrawPage;
++
++import javax.swing.*;
++import java.awt.*;
++
++public class WithdrawButton extends BaseButton {
++    public WithdrawButton() {
++        super();
++        button.setLocation(LEFT, Y_POS(3));
++        button.setText("Opnemen");
++        button.addActionListener(e -> GUI.gotoPage(WithdrawPage.KEY)); // Using WithdrawPage.KEY
++    }
++}
+Index: src/gui/pages/SaldoCheckPage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/pages/SaldoCheckPage.java b/src/gui/pages/SaldoCheckPage.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/pages/SaldoCheckPage.java	
+@@ -0,0 +1,23 @@
++package gui.pages;
++
++import gui.BasePage;
++import gui.buttons.BackButton;
++import gui.buttons.MainPageButton;
++import gui.buttons.StopTransactionButton;
++import gui.popups.TransactionDialog;
++
++public class SaldoCheckPage extends BasePage {
++    public static final String KEY = "SALDOCHECKPAGE"; // Correct key for SaldoCheckPage
++    private final TransactionDialog transactionDialog;
++
++    public SaldoCheckPage() {
++        super();
++
++        transactionDialog = new TransactionDialog();
++
++        page.add(new StopTransactionButton().getButton());
++        page.add(new BackButton(ChoicePage.KEY).getButton());
++        page.add(new MainPageButton().getButton());
++        page.add(transactionDialog.getDisplayText());
++    }
++}
+Index: src/gui/buttons/Snel50Button.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/buttons/Snel50Button.java b/src/gui/buttons/Snel50Button.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/buttons/Snel50Button.java	
+@@ -0,0 +1,18 @@
++package gui.buttons;
++
++import gui.BaseButton;
++import gui.GUI;
++import gui.pages.Eindscherm;
++import gui.pages.HomePage;
++
++import javax.swing.*;
++import java.awt.*;
++
++public class Snel50Button extends BaseButton {
++    public Snel50Button() {
++        super();
++        button.setLocation(LEFT,Y_POS(2));
++        button.setText("Snel 50 euro opnemen");
++        button.addActionListener(e -> GUI.gotoPage(Eindscherm.KEY));
++    }
++}
+Index: src/gui/pages/Eindscherm.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/pages/Eindscherm.java b/src/gui/pages/Eindscherm.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/pages/Eindscherm.java	
+@@ -0,0 +1,51 @@
++package gui.pages;
++
++import gui.BasePage;
++import gui.GUI;
++import gui.pages.HomePage;
++
++import javax.swing.*;
++import java.awt.*;
++import java.util.Timer;
++import java.util.TimerTask;
++
++public class Eindscherm extends BasePage {
++    public static final String KEY = "EINDSCHERM";
++
++    public Eindscherm() {
++        super();
++
++        // Set layout to null to manually position components
++        page.setLayout(null);
++
++        // Add a progress bar
++        JProgressBar progressBar = new JProgressBar(0, 100); // Progress from 0 to 100
++        int progressBarWidth = 400; // Set the width of the progress bar
++        int progressBarHeight = 40; // Set the height of the progress bar
++        int xPosition = (GUI.width - progressBarWidth) / 2; // Calculate the x-position to center the progress bar
++        int yPosition = (GUI.height - progressBarHeight) / 2 + 380; // Calculate the y-position to center the progress bar lower on the screen
++        progressBar.setBounds(xPosition, yPosition, progressBarWidth, progressBarHeight); // Set position and size
++        progressBar.setStringPainted(true); // Show percentage text
++        progressBar.setForeground(Color.RED); // Set the foreground color of the progress bar
++        progressBar.setBackground(Color.WHITE); // Set the background color of the progress bar
++        progressBar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); // Add border to the progress bar
++        progressBar.setFont(new Font("Arial", Font.BOLD, 20)); // Set font for the percentage text
++        page.add(progressBar);
++
++        // Schedule navigation to HomePage after 10 seconds
++        Timer timer = new Timer();
++        timer.scheduleAtFixedRate(new TimerTask() {
++            int count = 0;
++
++            @Override
++            public void run() {
++                count++;
++                progressBar.setValue(count * 10); // Increment progress by 10% every second
++                if (count == 10) {
++                    GUI.gotoPage(HomePage.KEY);
++                    timer.cancel(); // Stop the timer after navigation
++                }
++            }
++        }, 600, 600); // Start after 1 second, repeat every 1 second
++    }
++}
+Index: src/gui/buttons/SaldoCheckButton.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/gui/buttons/SaldoCheckButton.java b/src/gui/buttons/SaldoCheckButton.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/buttons/SaldoCheckButton.java	
+@@ -0,0 +1,17 @@
++package gui.buttons;
++
++import gui.*;
++import gui.pages.SaldoCheckPage;
++
++import javax.swing.*;
++import java.awt.*;
++
++public class SaldoCheckButton extends BaseButton{
++    public SaldoCheckButton() {
++        super();
++        button.setLocation(RIGHT,Y_POS(2));
++        button.setText("Saldo check");
++        button.setHorizontalTextPosition(SwingConstants.LEFT);
++        button.addActionListener(e -> GUI.gotoPage(SaldoCheckPage.KEY));
++    }
++}
