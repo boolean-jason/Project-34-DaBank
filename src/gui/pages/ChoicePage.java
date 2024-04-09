@@ -18,7 +18,7 @@ public class ChoicePage extends BasePage{
 
         JButton takeUp = createMenuButton(BaseButton.LEFT,BaseButton.Y_POS(3));
         takeUp.setText("Biljetten kiezen");
-        takeUp.addActionListener(e -> System.out.println("clicked")); // placeholder, TODO
+        takeUp.addActionListener(e -> System.out.println("Biljetten kiezen clicked")); // placeholder, TODO
         page.add(takeUp);
 
         JButton showBankingInfo = createMenuButton(BaseButton.RIGHT,BaseButton.Y_POS(2));

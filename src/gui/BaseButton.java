@@ -23,6 +23,7 @@ public abstract class BaseButton {
         button.setForeground(Color.BLACK);
         button.setBackground(Color.LIGHT_GRAY);
         button.setBorderPainted(false);
+        button.setBackground(new Color(136, 8, 8)); // Sets the background color to red
     }
     public JButton getButton() {
         return button;
